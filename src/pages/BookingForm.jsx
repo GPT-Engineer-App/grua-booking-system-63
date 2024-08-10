@@ -5,7 +5,7 @@ import { LoadScript, GoogleMap, Marker, DirectionsService, DirectionsRenderer } 
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
-const stripePromise = loadStripe('your-publishable-key-here');
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const BookingForm = () => {
   const [formData, setFormData] = useState({
@@ -88,12 +88,15 @@ const BookingForm = () => {
       const data = await response.json();
       const cardElement = elements.getElement(CardElement);
 
-      const paymentIntent = await stripe.createPaymentIntent({
-        amount: totalCost * 100, // Amount in cents
-        currency: 'usd',
-      });
+      const { clientSecret } = await fetch('/create-payment-intent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ amount: totalCost * 100 }),
+      }).then(res => res.json());
 
-      const paymentResult = await stripe.confirmCardPayment(paymentIntent.client_secret, {
+      const paymentResult = await stripe.confirmCardPayment(clientSecret, {
         payment_method: {
           card: cardElement,
           billing_details: {
@@ -212,10 +215,15 @@ const BookingForm = () => {
 
   const fetchTollData = async (origin, destination) => {
     try {
-      const response = await fetch(`https://api.tollguru.com/v1/calc/route?source=${origin.lat},${origin.lng}&destination=${destination.lat},${destination.lng}`);
+      const response = await fetch('/api/toll-data', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ origin, destination }),
+      });
       const data = await response.json();
-      const tolls = data.tolls || 0;
-      setTollCost(tolls);
+      setTollCost(data.tolls || 0);
     } catch (error) {
       console.error('Error fetching toll data:', error);
       toast({

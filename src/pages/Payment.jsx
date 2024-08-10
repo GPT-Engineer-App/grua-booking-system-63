@@ -12,18 +12,21 @@ const Payment = () => {
   const handlePayment = async () => {
     setIsProcessing(true);
     try {
-      // Simulate payment processing delay
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      
-      // Simulate successful payment
-      const paymentSuccess = true;
+      const response = await fetch('/api/process-payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ totalCost, formData }),
+      });
 
-      if (paymentSuccess) {
-        console.log('Payment processed for:', totalCost);
-        navigate('/confirmation', { state: { formData } });
-      } else {
+      if (!response.ok) {
         throw new Error('Payment failed');
       }
+
+      const result = await response.json();
+      console.log('Payment processed for:', totalCost);
+      navigate('/confirmation', { state: { formData, paymentResult: result } });
     } catch (error) {
       toast({
         title: 'Payment Error',
