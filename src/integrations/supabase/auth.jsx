@@ -3,6 +3,7 @@ import { supabase, SupabaseProvider } from './index.js';
 import { useQueryClient } from '@tanstack/react-query';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
+import { supabase } from './index.js';
 
 const SupabaseAuthContext = createContext();
 
@@ -66,5 +67,8 @@ export const SupabaseAuthUI = () => (
     appearance={{ theme: ThemeSupa }}
     theme="default"
     providers={[]}
+    redirectTo={window.location.origin}
+    onlyThirdPartyProviders={false}
+    magicLink={true}
   />
 );
