@@ -4,6 +4,7 @@ import App from "./App.jsx";
 import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 import { SupabaseProvider } from './integrations/supabase/index.js';
 import { SupabaseAuthProvider } from './integrations/supabase/auth.jsx';
+import { logFileModification } from './utils/fileLogger.js';
 
 const colors = {
   brand: {
@@ -14,6 +15,9 @@ const colors = {
 };
 
 const theme = extendTheme({ colors });
+
+// Log that this file has been modified
+logFileModification('src/main.jsx');
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
